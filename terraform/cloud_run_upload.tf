@@ -8,7 +8,8 @@ resource "google_cloud_run_service" "upload_api" {
       service_account_name = google_service_account.upload_api_sa.email
       
       containers {
-        image = "${var.artifact_registry_location}-docker.pkg.dev/${var.project_id}/globant-challenge/upload-api:latest"
+        # Imagen placeholder - será reemplazada por GitHub Actions
+        image = "gcr.io/cloudrun/placeholder"
         
         env {
           name  = "PROJECT_ID"
@@ -68,9 +69,12 @@ resource "google_cloud_run_service" "upload_api" {
     latest_revision = true
   }
   
+  # IMPORTANTE: Ignorar cambios en la imagen
   lifecycle {
     ignore_changes = [
       template[0].spec[0].containers[0].image,
+      template[0].metadata[0].annotations["run.googleapis.com/client-name"],
+      template[0].metadata[0].annotations["run.googleapis.com/client-version"],
     ]
   }
 }
