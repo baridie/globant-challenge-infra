@@ -11,13 +11,13 @@ variable "region" {
 }
 
 variable "environment" {
-  description = "Environment (dev/prod)"
+  description = "Environment (dev/prd)"
   type        = string
   default     = "dev"
   
   validation {
-    condition     = contains(["dev", "prod"], var.environment)
-    error_message = "Environment must be either 'dev' or 'prod'."
+    condition     = contains(["dev", "prd"], var.environment)
+    error_message = "Environment must be either 'dev' or 'prd'."
   }
 }
 

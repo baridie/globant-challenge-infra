@@ -36,14 +36,62 @@ else
 fi
 
 # Assign roles
+# Rol general de editor
 echo "→ Assigning roles to Service Account..."
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/editor"
 
+# Permitir que Terraform use cuentas de servicio
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/iam.serviceAccountUser"
+
+# Cloud Run (crear y administrar servicios)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/run.admin"
+
+# Cloud Build (ejecutar builds y usar workers)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/cloudbuild.builds.editor"
+
+# Artifact Registry (manejar imágenes y repositorios)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/artifactregistry.admin"
+
+# Storage (crear buckets y objetos)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/storage.admin"
+
+# Secret Manager (crear y acceder a secretos)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.admin"
+
+# BigQuery (crear datasets/tablas)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/bigquery.admin"
+
+# Compute (redes, instancias, VPC)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/compute.admin"
+
+# IAM (crear cuentas de servicio y llaves)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountAdmin"
+
+# Resource Manager (gestionar IAM bindings a nivel de proyecto)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:terraform-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/resourcemanager.projectIamAdmin"
+
 
 # Create key
 echo "→ Creating Service Account key..."

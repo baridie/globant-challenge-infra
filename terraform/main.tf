@@ -7,7 +7,7 @@ provider "google" {
 resource "google_artifact_registry_repository" "repo" {
   location      = var.artifact_registry_location
   repository_id = "globant-challenge"
-  description   = "Docker repository"
+  description   = "Docker repository for Globant Challenge APIs"
   format        = "DOCKER"
   
   labels = {
