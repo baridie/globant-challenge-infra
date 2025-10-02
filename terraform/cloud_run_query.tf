@@ -1,4 +1,3 @@
-# Cloud Run Service - Query API
 resource "google_cloud_run_service" "query_api" {
   name     = "globant-query-api-${var.environment}"
   location = var.region
@@ -8,7 +7,6 @@ resource "google_cloud_run_service" "query_api" {
       service_account_name = google_service_account.query_api_sa.email
       
       containers {
-        # Imagen placeholder - será reemplazada por GitHub Actions
         image = "gcr.io/cloudrun/placeholder"
         
         env {
@@ -18,7 +16,7 @@ resource "google_cloud_run_service" "query_api" {
         
         env {
           name  = "DATASET_ID"
-          value = google_bigquery_dataset.globant.dataset_id
+          value = google_bigquery_dataset.crt.dataset_id
         }
         
         env {
@@ -64,7 +62,6 @@ resource "google_cloud_run_service" "query_api" {
     latest_revision = true
   }
   
-  # IMPORTANTE: Ignorar cambios en la imagen
   lifecycle {
     ignore_changes = [
       template[0].spec[0].containers[0].image,
@@ -74,7 +71,7 @@ resource "google_cloud_run_service" "query_api" {
   }
 }
 
-# Allow unauthenticated access (API Key will be validated in the app)
+
 resource "google_cloud_run_service_iam_member" "query_api_public_access" {
   service  = google_cloud_run_service.query_api.name
   location = google_cloud_run_service.query_api.location

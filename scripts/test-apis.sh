@@ -10,9 +10,10 @@ fi
 
 source ~/api-keys.txt
 
-# Get API URLs from Terraform outputs
-UPLOAD_API_URL=$(grep "upload_api_url" ~/terraform-outputs.txt | awk '{print $3}' | tr -d '"')
-QUERY_API_URL=$(grep "query_api_url" ~/terraform-outputs.txt | awk '{print $3}' | tr -d '"')
+# Get API URLs directly from Terraform
+echo "Getting API URLs from Terraform..."
+UPLOAD_API_URL=$(cd terraform && terraform output -raw upload_api_url 2>/dev/null)
+QUERY_API_URL=$(cd terraform && terraform output -raw query_api_url 2>/dev/null)
 
 echo "=========================================="
 echo "Testing Globant Challenge APIs"
@@ -21,22 +22,35 @@ echo "Upload API: $UPLOAD_API_URL"
 echo "Query API: $QUERY_API_URL"
 echo "=========================================="
 
-# Test Upload API Health
-echo ""
-echo "1. Testing Upload API Health..."
-curl -s "$UPLOAD_API_URL/health" | jq
+# Test function with error handling
+test_endpoint() {
+    local name=$1
+    local url=$2
+    
+    echo ""
+    echo "$name..."
+    response=$(curl -s -w "\n%{http_code}" "$url")
+    http_code=$(echo "$response" | tail -n1)
+    body=$(echo "$response" | head -n -1)
+    
+    echo "Status: $http_code"
+    if [ "$http_code" -eq 200 ]; then
+        echo "$body" | jq .
+    else
+        echo "ERROR: Expected 200, got $http_code"
+        return 1
+    fi
+}
 
-# Test Query API Health
-echo ""
-echo "2. Testing Query API Health..."
-curl -s "$QUERY_API_URL/health" | jq
+# Run tests
+test_endpoint "1. Testing Upload API Health" "$UPLOAD_API_URL/health"
+test_endpoint "2. Testing Query API Health" "$QUERY_API_URL/health"
 
-# Test authentication (should fail without API key)
+# Test authentication
 echo ""
-echo "3. Testing authentication (should fail)..."
-curl -s "$UPLOAD_API_URL/api/v1/upload/departments" | jq
+echo "3. Testing authentication (should fail without API key)..."
+test_endpoint "Authentication test" "$UPLOAD_API_URL/api/v1/upload/departments" || true
 
-# Note: File uploads would require actual CSV files
 echo ""
 echo "=========================================="
 echo "Basic health checks completed!"
