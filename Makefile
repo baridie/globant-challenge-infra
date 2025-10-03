@@ -1,4 +1,4 @@
-.PHONY: help init plan apply destroy clean test
+.PHONY: help init plan apply destroy clean test refresh outputs
 
 PROJECT_ID = globant-challenge-473721
 REGION = us-central1
@@ -10,6 +10,7 @@ help:
 	@echo "  make plan       - Plan infrastructure changes"
 	@echo "  make apply      - Apply infrastructure changes"
 	@echo "  make destroy    - Destroy all infrastructure"
+	@echo "  make refresh    - Refresh the Terraform state"
 	@echo "  make test       - Test deployed APIs"
 	@echo "  make clean      - Clean Terraform files"
 	@echo "  make outputs    - Show Terraform outputs"
@@ -48,6 +49,15 @@ destroy:
 			-var="upload_api_key=$$UPLOAD_API_KEY" \
 			-var="query_api_key=$$QUERY_API_KEY"; \
 	fi
+
+refresh:
+	@echo "Refreshing Terraform state..."
+	@source ~/api-keys.txt && cd terraform && terraform refresh \
+		-var="project_id=$(PROJECT_ID)" \
+		-var="region=$(REGION)" \
+		-var="environment=$(ENV)" \
+		-var="upload_api_key=$$UPLOAD_API_KEY" \
+		-var="query_api_key=$$QUERY_API_KEY"
 
 test:
 	@echo "Testing APIs..."
